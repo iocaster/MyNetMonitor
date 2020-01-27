@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/button4GetActiveNetwork"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:onClick="onClickButton"
+                android:text="Get Active Net ID" />
+
+            <Button
+                android:id="@+id/button4ClearLog"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:onClick="onClickButton"
+                android:text="Clear Log" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/textView4ActiveNetworkId"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textMultiLine"
+            android:text="active network ID" />
+
+        <TextView
+            android:id="@+id/textView4"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#2196F3"
+            android:text="--- onAvailable() ---"
+            android:textColor="#FFFFFFFF" />
+
+        <TextView
+            android:id="@+id/textView4ActiveNetworkDetail"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textMultiLine"
+            android:lines="10"
+            android:scrollbars="vertical"
+            android:text="active network detail info view ..." />
+
+        <TextView
+            android:id="@+id/textView5"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#FF9800"
+            android:text="--- Log ---"
+            android:textColor="#FFFFFFFF" />
+
+        <TextView
+            android:id="@+id/textView4Log"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:inputType="textMultiLine"
+            android:minLines="8"
+            android:scrollbars="vertical"
+            android:text="log view ..." />
+
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
