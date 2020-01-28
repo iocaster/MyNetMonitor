@@ -41,23 +41,6 @@
             android:text="active network ID" />
 
         <TextView
-            android:id="@+id/textView4"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="#2196F3"
-            android:text="--- onAvailable() ---"
-            android:textColor="#FFFFFFFF" />
-
-        <TextView
-            android:id="@+id/textView4ActiveNetworkDetail"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:inputType="textMultiLine"
-            android:lines="10"
-            android:scrollbars="vertical"
-            android:text="active network detail info view ..." />
-
-        <TextView
             android:id="@+id/textView5"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
