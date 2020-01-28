@@ -48,11 +48,26 @@ public class MainActivity extends AppCompatActivity {
                 case MSG_NOTICE_NEW_NETWORK :
                     Network activeNetwork = mNetMon.getActiveNetwork();
                     mNetMon.printAllInetAddress(activeNetwork);
+                    NetworkInfo ni = mNetMon.getNetworkInfo(activeNetwork);
+                    int netType = ni.getType();
 
-                    if(activeNetwork != null)
-                        tvActiveNetworkId.setText( activeNetwork.toString() );
-                    else
-                        tvActiveNetworkId.setText( "No active network !!!" );
+                    if(activeNetwork != null) {
+                        tvActiveNetworkId.setText(activeNetwork.toString());
+                        switch(netType) {
+                            case ConnectivityManager.TYPE_WIFI:
+                                String wifiIp = mNetMon.getWifiIPAddress();
+                                tvActiveNetworkId.setText( tvActiveNetworkId.getText() + " ip = " + wifiIp);
+                                break;
+                            case ConnectivityManager.TYPE_MOBILE:
+                                String mobileIp = mNetMon.getMobileIPAddress();
+                                tvActiveNetworkId.setText( tvActiveNetworkId.getText() + " ip = " + mobileIp);
+                                break;
+                            case ConnectivityManager.TYPE_ETHERNET:
+                                break;
+                        }
+                    } else {
+                        tvActiveNetworkId.setText("No active network !!!");
+                    }
                     break;
                 case MSG_UPDATE_LOG_TXT :
                     String logStr = (String) msg.obj;
@@ -193,15 +208,12 @@ public class MainActivity extends AppCompatActivity {
         final Network thisNet = network;
         new Thread() {
             public void run() {
-                String host = "www.iocaster.com";
+                String host = "www.google.com";
                 Socket socket = null;
                 try {
                     socket = thisNet.getSocketFactory().createSocket();
-                    socket.connect(new InetSocketAddress(host, 80), 10000);
+                    socket.connect(new InetSocketAddress(host, 443), 10000);
                     Log.i(TAG, "--> tryNetwork2() : Validated " + thisNet + " " + " host=" + host);
-//                    synchronized (validated) {
-//                        validated.put(network, new Date().getTime());
-//                    }
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                         ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
                         cm.reportNetworkConnectivity(thisNet, true);

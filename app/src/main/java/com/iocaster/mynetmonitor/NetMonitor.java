@@ -360,6 +360,12 @@ public class NetMonitor {
         return null;
     }
 
+    public NetworkInfo getNetworkInfo( Network network ) {
+        ConnectivityManager cm = (ConnectivityManager) mCtx.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo ni = cm.getNetworkInfo(network);
+        return ni;
+    }
+
     public boolean isNetworkAvailable() {
         ConnectivityManager cm = (ConnectivityManager) mCtx.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetworkInfo = cm.getActiveNetworkInfo();
