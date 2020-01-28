@@ -8,6 +8,8 @@ import android.net.Network;
 import android.net.NetworkCapabilities;
 import android.net.NetworkInfo;
 import android.net.NetworkRequest;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -22,12 +24,17 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import java.io.IOException;
+import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.NetworkInterface;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.nio.ByteOrder;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
@@ -117,6 +124,12 @@ public class MainActivity extends AppCompatActivity {
                     /*int*/ netType = MY_NET_TYPE_ETHERNET;
                     /*String*/ logStr = "mNetStates[ MY_NET_TYPE_ETHERNET ] = " + MY_NET_STATE_STRS[ mNetStates[netType] ] ;
                     appendLogText(logStr);
+
+                    String wIp = getWifiIPAddress();
+                    Log.d(TAG, "--> wifi IP = " + wIp);
+                    String mIp = getMobileIPAddress();
+                    Log.d(TAG, "--> mobile IP = " + mIp);
+
                     break;
             }
         }
@@ -608,5 +621,80 @@ public class MainActivity extends AppCompatActivity {
         }.start();
     }
 
+    /*
+     * getWifiIPAddress() / getMobileIPAddress() :
+     * https://stackoverflow.com/questions/40670295/how-to-get-ip-address-of-cellular-network-when-device-is-connected-to-wifi-in-an
+     * https://stackoverflow.com/questions/6064510/how-to-get-ip-address-of-the-device-from-code/13007325#13007325
+     */
+    public String getWifiIPAddress() {
+        WifiManager wifiMgr = (WifiManager) getApplicationContext().getSystemService(WIFI_SERVICE);
+        if( wifiMgr == null ) return "";
+
+        WifiInfo wifiInfo = wifiMgr.getConnectionInfo();
+        if( wifiInfo != null ) {
+            int ip = wifiInfo.getIpAddress();
+            //return Formatter.formatIpAddress(ip);
+            Log.d(TAG, "getWifiIPAddress() : ip = " + ip);
+
+//            if (ByteOrder.nativeOrder().equals(ByteOrder.LITTLE_ENDIAN)) {
+//                ip = Integer.reverseBytes(ip);
+//            }
+//            byte[] ipByteArray = BigInteger.valueOf(ip).toByteArray();
+//            String ipAddressString = "";
+//            try {
+//                ipAddressString = InetAddress.getByAddress(ipByteArray).getHostAddress();
+//            } catch (UnknownHostException ex) {
+//                Log.e(TAG, "getWifiIPAddress() : Unable to get host address.");
+//            }
+
+            String ipAddressString = myIpAddressToString(ip);
+            return ipAddressString;
+        }
+
+        return "";
+    }
+
+    public static String getMobileIPAddress() {
+        try {
+            List<NetworkInterface> interfaces = Collections.list(NetworkInterface.getNetworkInterfaces());
+            for (NetworkInterface intf : interfaces) {
+                List<InetAddress> addrs = Collections.list(intf.getInetAddresses());
+                for (InetAddress addr : addrs) {
+                    Log.d(TAG, "getMobileIPAddress() : InetAddr.getHostAddress() = " + addr.getHostAddress() );
+                    if (!addr.isLoopbackAddress()) {
+                        //return  addr.getHostAddress();
+                        String sAddr = addr.getHostAddress();
+                        boolean isIPv4 = sAddr.indexOf(':') < 0;    //IPv6) fe80::b896:f7ff:feb1:dd27%dummy0
+                        if( isIPv4 ) {
+                            return sAddr;
+                        } else {
+                            int delim = sAddr.indexOf('%'); // drop ip6 zone suffix
+                            return delim<0 ? sAddr.toUpperCase() : sAddr.substring(0, delim).toUpperCase();
+                        }
+
+                    }
+                }
+            }
+        } catch (Exception ex) { } // for now eat exceptions
+        return "";
+    }
+
+    public static String myIpAddressToString(int ipAddress) {
+
+        if (ByteOrder.nativeOrder().equals(ByteOrder.LITTLE_ENDIAN)) {
+            ipAddress = Integer.reverseBytes(ipAddress);
+        }
+
+        byte[] ipByteArray = BigInteger.valueOf(ipAddress).toByteArray();
+
+        String ipAddressString = "";
+        try {
+            ipAddressString = InetAddress.getByAddress(ipByteArray).getHostAddress();
+        } catch (UnknownHostException ex) {
+            Log.e(TAG, "myIpAddressToString() : Unable to get host address.");
+        }
+
+        return ipAddressString;
+    }
 
 }
