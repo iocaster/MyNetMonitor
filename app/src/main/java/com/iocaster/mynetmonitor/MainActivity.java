@@ -34,25 +34,95 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
 
+    private final Object lockObj = new Object();
+
+    public int mNetType = 0;
+    public static final int MY_NET_TYPE_UNKNOWN = 0;
+    public static final int MY_NET_TYPE_WIFI = 1;
+    public static final int MY_NET_TYPE_MOBILE = 2;
+    public static final int MY_NET_TYPE_ETHERNET = 3;
+    public static final String[] MY_NET_TYPE_STRS = {
+            "MY_NET_TYPE_UNKNOWN",
+            "MY_NET_TYPE_WIFI",
+            "MY_NET_TYPE_MOBILE",
+            "MY_NET_TYPE_ETHERNET",
+    };
+    
+    public int[] mNetStates = { 0, 0, 0, 0 };   //UNKNOWN, WIFI, MOBILE, ETHERNET
+    public static final int MY_NET_STATE_UNKNOWN = 0;
+    public static final int MY_NET_STATE_AVAILABLE = 1;                //interface up state but internet isn't available state
+    public static final int MY_NET_STATE_CAPABILITY_VALIDATED = 2;    //internet available state
+    public static final int MY_NET_STATE_LOST = 3;                     //interface down state
+    public static final String[] MY_NET_STATE_STRS = {
+        "MY_NET_STATE_UNKNOWN",
+        "MY_NET_STATE_AVAILABLE",
+        "MY_NET_STATE_CAPABILITY_VALIDATED",
+        "MY_NET_STATE_LOST",
+    };
+
+    private Map<Network, Integer> mNetworkStateMap = new HashMap<>();
+
+
+    public int mPlayerState = 0;
+    public static final int PLAYER_STATE_IDLE = 0;
+    public static final int PLAYER_STATE_INITIALIZED = 1;
+    public static final int PLAYER_STATE_PREPARING = 2;
+    public static final int PLAYER_STATE_PREPARED = 3;
+    public static final int PLAYER_STATE_STARTED = 4;
+    public static final int PLAYER_STATE_STOPPED = 5;
+    public static final int PLAYER_STATE_PAUSED = 6;
+    public static final int PLAYER_STATE_PLAYBACK_COMPLETED = 7;
+
+
     public static final int MSG_UPDATE_ACTIVE_NETWORK_DETAIL = 1;
+    public static final int MSG_NOTICE_NEW_NETWORK = 2;
     public static final int MSG_UPDATE_LOG_TXT = 9;
+    public static final int MSG_UPDATE_LOG_TXT_WITH_NET_STATE = 10;
 
     final Handler mHandler = new Handler() {
         @Override
         public void handleMessage(@NonNull Message msg) {
             //super.handleMessage(msg);
+            String logStr;
             switch(msg.what) {
                 case MSG_UPDATE_ACTIVE_NETWORK_DETAIL :
                     String detailStr = (String) msg.obj;
                     setActiveNetworkDetail( detailStr );
                     break;
+                case MSG_NOTICE_NEW_NETWORK :
+                    Network activeNetwork = getActiveNetwork();
+                    printAllInetAddress(activeNetwork);
+
+                    if(activeNetwork != null)
+                        tvActiveNetworkId.setText( activeNetwork.toString() );
+                    else
+                        tvActiveNetworkId.setText( "No active network !!!" );
+                    break;
                 case MSG_UPDATE_LOG_TXT :
-                    String logStr = (String) msg.obj;
+                    /*String*/ logStr = (String) msg.obj;
                     appendLogText( logStr );
+                    break;
+                case MSG_UPDATE_LOG_TXT_WITH_NET_STATE :
+                    /*String*/ logStr = "\nmNetType = " + MY_NET_TYPE_STRS[ mNetType ] ;
+                    appendLogText(logStr);
+
+                    int netType = MY_NET_TYPE_WIFI;
+                    /*String*/ logStr = "mNetStates[ MY_NET_TYPE_WIFI ] = " + MY_NET_STATE_STRS[ mNetStates[netType] ] ;
+                    appendLogText(logStr);
+
+                    /*int*/ netType = MY_NET_TYPE_MOBILE;
+                    /*String*/ logStr = "mNetStates[ MY_NET_TYPE_MOBILE ] = " + MY_NET_STATE_STRS[ mNetStates[netType] ] ;
+                    appendLogText(logStr);
+
+                    /*int*/ netType = MY_NET_TYPE_ETHERNET;
+                    /*String*/ logStr = "mNetStates[ MY_NET_TYPE_ETHERNET ] = " + MY_NET_STATE_STRS[ mNetStates[netType] ] ;
+                    appendLogText(logStr);
                     break;
             }
         }
     };
+
+
 
     TextView tvActiveNetworkId;
     TextView tvActiveNetworkDetail;
@@ -182,6 +252,28 @@ public class MainActivity extends AppCompatActivity {
             NetworkCapabilities capabilities = cm.getNetworkCapabilities(network);
             Log.i(TAG, "    Available network " + network + " " + ni);
             Log.i(TAG, "    Capabilities=" + capabilities);
+
+            int netType = MY_NET_TYPE_UNKNOWN;
+            if( capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) ) {
+                netType = MY_NET_TYPE_MOBILE;
+            } else if( capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) ) {
+                netType = MY_NET_TYPE_WIFI;
+            } else if( capabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) ) {
+                netType = MY_NET_TYPE_ETHERNET;
+            }
+            mNetStates[netType] = MY_NET_STATE_AVAILABLE;
+//            mNetType = netType;
+
+            //save the netType : to take out onLost() later
+            synchronized (mNetworkStateMap) {
+                if (mNetworkStateMap.containsKey(network)) {
+                    Log.i(TAG, "--> Already mNetworkStateMap " + network ); //maybe error
+                } else {
+                    mNetworkStateMap.put(network, netType);
+                    Log.i(TAG, "--> New mNetworkStateMap " + network );
+                }
+            }
+
             //checkConnectivity(network, ni, capabilities);	//--> 아래에 구현되어 있음.
             checkConnectivity2(network, ni, capabilities);	//--> 아래에 구현되어 있음.
 
@@ -208,6 +300,33 @@ public class MainActivity extends AppCompatActivity {
             NetworkInfo ni = cm.getNetworkInfo(network);
             Log.i(TAG, "    New capabilities network " + network + " " + ni);
             Log.i(TAG, "    Capabilities=" + capabilities);
+
+            int netType = MY_NET_TYPE_UNKNOWN;
+            if( capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) ) {
+                netType = MY_NET_TYPE_MOBILE;
+            } else if( capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) ) {
+                netType = MY_NET_TYPE_WIFI;
+            } else if( capabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) ) {
+                netType = MY_NET_TYPE_ETHERNET;
+            }
+
+            if (ni != null && capabilities != null &&
+                    ni.getDetailedState() != NetworkInfo.DetailedState.SUSPENDED &&
+                    ni.getDetailedState() != NetworkInfo.DetailedState.BLOCKED &&
+                    ni.getDetailedState() != NetworkInfo.DetailedState.DISCONNECTED &&
+                    capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_VPN) &&
+                    capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)) {
+                mNetStates[netType] = MY_NET_STATE_CAPABILITY_VALIDATED;
+                synchronized(lockObj) {
+                    mNetType = netType;
+                }
+
+                Message msg = new Message();
+                msg.what = MSG_NOTICE_NEW_NETWORK;
+                mHandler.sendMessage( msg );
+            }
+
+
             //checkConnectivity(network, ni, capabilities);	//--> 아래에 구현되어 있음.
             checkConnectivity2(network, ni, capabilities);	//--> 아래에 구현되어 있음.
 
@@ -216,6 +335,10 @@ public class MainActivity extends AppCompatActivity {
             msg.what = MSG_UPDATE_LOG_TXT;
             msg.obj = logStr;
             mHandler.sendMessage( msg );
+
+            Message msg2 = new Message();
+            msg2.what = MSG_UPDATE_LOG_TXT_WITH_NET_STATE;
+            mHandler.sendMessage( msg2 );
         }
 
         @Override
@@ -241,7 +364,19 @@ public class MainActivity extends AppCompatActivity {
             Log.d(TAG, "--> onLost() : Enter...");
             ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
             NetworkInfo ni = cm.getNetworkInfo(network);
-            Log.i(TAG, "    Lost network " + network + " " + ni);
+            NetworkCapabilities capabilities = cm.getNetworkCapabilities(network);
+            Log.i(TAG, "    Lost network " + network + " " + ni);   //ni == null
+            Log.i(TAG, "    Capabilities=" + capabilities);         //capabilities == null
+
+            synchronized (mNetworkStateMap) {
+                if (mNetworkStateMap.containsKey(network)) {
+                    Log.i(TAG, "--> Found mNetworkStateMap " + network );
+                    int netType = mNetworkStateMap.get(network);    //take out the saved netType
+                    mNetStates[netType] = MY_NET_STATE_LOST;
+                    mNetworkStateMap.remove(network);
+                }
+            }
+
 
             String logStr = new String("\n--> onLost() : Lost network " + network + " " + ni);
             Message msg = new Message();
@@ -252,6 +387,10 @@ public class MainActivity extends AppCompatActivity {
 //            synchronized (validated) {
 //                validated.remove(network);
 //            }
+
+            Message msg2 = new Message();
+            msg2.what = MSG_UPDATE_LOG_TXT_WITH_NET_STATE;
+            mHandler.sendMessage( msg2 );
         }
 
         @Override
