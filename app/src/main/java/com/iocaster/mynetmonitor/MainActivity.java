@@ -633,22 +633,9 @@ public class MainActivity extends AppCompatActivity {
         WifiInfo wifiInfo = wifiMgr.getConnectionInfo();
         if( wifiInfo != null ) {
             int ip = wifiInfo.getIpAddress();
-            //return Formatter.formatIpAddress(ip);
             Log.d(TAG, "getWifiIPAddress() : ip = " + ip);
-
-//            if (ByteOrder.nativeOrder().equals(ByteOrder.LITTLE_ENDIAN)) {
-//                ip = Integer.reverseBytes(ip);
-//            }
-//            byte[] ipByteArray = BigInteger.valueOf(ip).toByteArray();
-//            String ipAddressString = "";
-//            try {
-//                ipAddressString = InetAddress.getByAddress(ipByteArray).getHostAddress();
-//            } catch (UnknownHostException ex) {
-//                Log.e(TAG, "getWifiIPAddress() : Unable to get host address.");
-//            }
-
-            String ipAddressString = myIpAddressToString(ip);
-            return ipAddressString;
+            //return Formatter.formatIpAddress(ip); //depricated ...
+            return myIpAddressToString(ip);
         }
 
         return "";
