@@ -634,7 +634,7 @@ public class MainActivity extends AppCompatActivity {
         if( wifiInfo != null ) {
             int ip = wifiInfo.getIpAddress();
             Log.d(TAG, "getWifiIPAddress() : ip = " + ip);
-            //return Formatter.formatIpAddress(ip); //depricated ...
+            //return Formatter.formatIpAddress(ip); //deprecated ...
             return myIpAddressToString(ip);
         }
 
