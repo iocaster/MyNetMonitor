@@ -57,16 +57,16 @@ public class MainActivity extends AppCompatActivity {
                             case ConnectivityManager.TYPE_WIFI:
                                 String wifiIp = mNetMon.getWifiIPAddress();
                                 //String wifiIp = mNetMon.getIPAddress("wlan0");
-                                tvActiveNetworkId.setText( tvActiveNetworkId.getText() + ", ip = " + wifiIp);
+                                tvActiveNetworkId.setText( tvActiveNetworkId.getText() + ", ip = " + wifiIp + " (wifi)");
                                 break;
                             case ConnectivityManager.TYPE_MOBILE:
                                 String mobileIp = mNetMon.getMobileIPAddress();
                                 //String mobileIp = mNetMon.getIPAddress("dummy0");
-                                tvActiveNetworkId.setText( tvActiveNetworkId.getText() + ", ip = " + mobileIp);
+                                tvActiveNetworkId.setText( tvActiveNetworkId.getText() + ", ip = " + mobileIp+ " (mobile)");
                                 break;
                             case ConnectivityManager.TYPE_ETHERNET:
                                 String ethIp = mNetMon.getIPAddress("eth0");
-                                tvActiveNetworkId.setText( tvActiveNetworkId.getText() + ", ip = " + ethIp);
+                                tvActiveNetworkId.setText( tvActiveNetworkId.getText() + ", ip = " + ethIp+ " (ethernet)");
                                 break;
                         }
                     } else {
