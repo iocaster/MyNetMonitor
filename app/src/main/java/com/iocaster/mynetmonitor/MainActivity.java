@@ -52,21 +52,21 @@ public class MainActivity extends AppCompatActivity {
                     int netType = ni.getType();
 
                     if(activeNetwork != null) {
-                        tvActiveNetworkId.setText(activeNetwork.toString());
+                        tvActiveNetworkId.setText( "network = " + activeNetwork.toString());
                         switch(netType) {
                             case ConnectivityManager.TYPE_WIFI:
                                 String wifiIp = mNetMon.getWifiIPAddress();
                                 //String wifiIp = mNetMon.getIPAddress("wlan0");
-                                tvActiveNetworkId.setText( tvActiveNetworkId.getText() + " ip = " + wifiIp);
+                                tvActiveNetworkId.setText( tvActiveNetworkId.getText() + ", ip = " + wifiIp);
                                 break;
                             case ConnectivityManager.TYPE_MOBILE:
                                 String mobileIp = mNetMon.getMobileIPAddress();
                                 //String mobileIp = mNetMon.getIPAddress("dummy0");
-                                tvActiveNetworkId.setText( tvActiveNetworkId.getText() + " ip = " + mobileIp);
+                                tvActiveNetworkId.setText( tvActiveNetworkId.getText() + ", ip = " + mobileIp);
                                 break;
                             case ConnectivityManager.TYPE_ETHERNET:
                                 String ethIp = mNetMon.getIPAddress("eth0");
-                                tvActiveNetworkId.setText( tvActiveNetworkId.getText() + " ip = " + ethIp);
+                                tvActiveNetworkId.setText( tvActiveNetworkId.getText() + ", ip = " + ethIp);
                                 break;
                         }
                     } else {
@@ -189,13 +189,16 @@ public class MainActivity extends AppCompatActivity {
     public void onClickButton( View view ) {
         switch( view.getId()) {
             case R.id.button4GetActiveNetwork: //getActiveNetwork
-                Network activeNetwork = mNetMon.getActiveNetwork();
-                mNetMon.printAllInetAddress(activeNetwork);
-
-                if(activeNetwork != null)
-                    tvActiveNetworkId.setText( activeNetwork.toString() );
-                else
-                    tvActiveNetworkId.setText( "No active network !!!" );
+//                Network activeNetwork = mNetMon.getActiveNetwork();
+//                mNetMon.printAllInetAddress(activeNetwork);
+//
+//                if(activeNetwork != null)
+//                    tvActiveNetworkId.setText( activeNetwork.toString() );
+//                else
+//                    tvActiveNetworkId.setText( "No active network !!!" );
+                Message msg = new Message();
+                msg.what = MSG_NOTICE_NEW_NETWORK;
+                mHandler.sendMessage( msg );
                 break;
 
             case R.id.button4ClearLog:

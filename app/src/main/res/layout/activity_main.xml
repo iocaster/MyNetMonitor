@@ -22,7 +22,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:onClick="onClickButton"
-                android:text="Get Active Net ID" />
+                android:text="Get Active Net" />
 
             <Button
                 android:id="@+id/button4ClearLog"
