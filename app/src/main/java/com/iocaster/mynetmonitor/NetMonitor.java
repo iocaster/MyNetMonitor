@@ -24,9 +24,11 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.NetworkInterface;
 import java.net.Socket;
+import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.nio.ByteOrder;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -448,6 +450,54 @@ public class NetMonitor {
                 }
             }
         } catch (Exception ex) { } // for now eat exceptions
+        return "";
+    }
+
+    /*
+     * refer to : https://www.codeproject.com/Questions/470238/How-to-get-ethernet-IP-address
+     * NICname : "eth0", "ppp0", ...
+     */
+    public String getIPAddress( String NICname ) {
+        NetworkInterface ni = null;
+        try {
+            ni = NetworkInterface.getByName(NICname);
+            Enumeration<InetAddress> inetAddresses = ni.getInetAddresses();
+
+            int count = 0;
+            while (inetAddresses.hasMoreElements()) {
+                count++;
+                InetAddress ia = inetAddresses.nextElement();
+                Log.d(TAG, "0 - getIPAddress("+NICname+") : " + ia.getHostAddress());
+                if (!ia.isLinkLocalAddress()) {
+                    Log.d(TAG, "1 - getIPAddress("+NICname+") : " + ia.getHostAddress());
+                    //return ia.getHostAddress();   //그냥 리턴하지 않고 아래처럼 ipv6 처리 필요
+                    String sAddr = ia.getHostAddress();
+                    boolean isIPv4 = sAddr.indexOf(':') < 0;    //IPv6) fe80::b896:f7ff:feb1:dd27%dummy0
+                    if( isIPv4 ) {
+                        return sAddr;
+                    } else {
+                        int delim = sAddr.indexOf('%'); // drop ip6 zone suffix
+                        return delim<0 ? sAddr.toUpperCase() : sAddr.substring(0, delim).toUpperCase();
+                    }
+                }
+            }
+            //If no isLinkLocalAddress() found then return the first address
+            if(count > 0) {
+                /*Enumeration<InetAddress>*/ inetAddresses = ni.getInetAddresses();
+                InetAddress ia = inetAddresses.nextElement();
+                //return ia.getHostAddress();   //그냥 리턴하지 않고 아래처럼 ipv6 처리 필요
+                String sAddr = ia.getHostAddress();
+                boolean isIPv4 = sAddr.indexOf(':') < 0;    //IPv6) fe80::b896:f7ff:feb1:dd27%dummy0
+                if( isIPv4 ) {
+                    return sAddr;
+                } else {
+                    int delim = sAddr.indexOf('%'); // drop ip6 zone suffix
+                    return delim<0 ? sAddr.toUpperCase() : sAddr.substring(0, delim).toUpperCase();
+                }
+            }
+        } catch (SocketException e) {
+            e.printStackTrace();
+        }
         return "";
     }
 
