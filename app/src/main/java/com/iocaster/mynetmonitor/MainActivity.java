@@ -1,6 +1,7 @@
 package com.iocaster.mynetmonitor;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.Network;
 import android.net.NetworkInfo;
@@ -11,6 +12,7 @@ import android.os.Message;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -82,6 +84,8 @@ public class MainActivity extends AppCompatActivity {
     };
 
 
+
+    ImageView ivWifi, ivData;
     TextView tvActiveNetworkId;
     TextView tvLog;
 
@@ -90,8 +94,14 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        ivWifi = findViewById(R.id.iconWifi);
+        ivData = findViewById(R.id.iconData);
+
         tvActiveNetworkId = findViewById(R.id.textView4ActiveNetworkId);
         tvLog = findViewById(R.id.textView4Log);
+
+        setWifiColorOff();
+        setDataColorOff();
 
         //enable scrollable with android:scrollbars="vertical"
         tvLog.setMovementMethod(new ScrollingMovementMethod());
@@ -123,9 +133,11 @@ public class MainActivity extends AppCompatActivity {
                         Log.d(TAG, "--> onValidatedNetwork() : NetMonitor.NET_TYPE_UNKNOWN");
                         break;
                     case NetMonitor.NET_TYPE_WIFI:
+                        setWifiColorOn();
                         Log.d(TAG, "--> onValidatedNetwork() : NetMonitor.NET_TYPE_WIFI");
                         break;
                     case NetMonitor.NET_TYPE_MOBILE:
+                        setDataColorOn();
                         Log.d(TAG, "--> onValidatedNetwork() : NetMonitor.NET_TYPE_MOBILE");
                         break;
                 }
@@ -149,11 +161,13 @@ public class MainActivity extends AppCompatActivity {
                         Log.d(TAG, "--> onLostNetwork() : NetMonitor.NET_TYPE_UNKNOWN");
                         break;
                     case NetMonitor.NET_TYPE_WIFI:
+                        setWifiColorOff();
                         Log.d(TAG, "--> onLostNetwork() : NetMonitor.NET_TYPE_WIFI");
                         String wifiIp = mNetMon.getWifiIPAddress();
                         Log.d(TAG, "WiFi IP = " + wifiIp);
                         break;
                     case NetMonitor.NET_TYPE_MOBILE:
+                        setDataColorOff();
                         Log.d(TAG, "--> onLostNetwork() : NetMonitor.NET_TYPE_MOBILE");
                         String mobileIp = mNetMon.getMobileIPAddress();
                         Log.d(TAG, "Mobile IP = " + mobileIp);
@@ -167,6 +181,20 @@ public class MainActivity extends AppCompatActivity {
                 mHandler.sendMessage( msg2 );
             }
         });
+    }
+
+    private void setWifiColorOff() {
+        ivWifi.setBackgroundColor(Color.rgb(150, 150, 150));    //light gray
+    }
+    private void setWifiColorOn() {
+        ivWifi.setBackgroundColor(Color.rgb(0, 255, 0));    //green
+    }
+
+    private void setDataColorOff() {
+        ivData.setBackgroundColor(Color.rgb(150, 150, 150));    //light gray
+    }
+    private void setDataColorOn() {
+        ivData.setBackgroundColor(Color.rgb(0, 255, 0));    //green
     }
 
     private void setLogText(String logString ) {
