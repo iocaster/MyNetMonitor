@@ -210,6 +210,7 @@ public class MainActivity extends AppCompatActivity {
         String[] strs = logString.split(",");
         for( String str : strs ) {
             tvLog.setText( tvLog.getText() + "\n" + str );
+            tvLog.invalidate();
         }
     }
 

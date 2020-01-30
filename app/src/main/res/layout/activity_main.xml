@@ -72,6 +72,7 @@
             android:id="@+id/textView4Log"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:gravity="bottom"
             android:inputType="textMultiLine"
             android:minLines="8"
             android:scrollbars="vertical"
