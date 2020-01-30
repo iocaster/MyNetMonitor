@@ -119,14 +119,14 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onValidatedNetwork(int netType, Network network) {
                 switch( netType ) {
-                    case NetMonitor.MY_NET_TYPE_UNKNOWN:
-                        Log.d(TAG, "--> onValidatedNetwork() : NetMonitor.MY_NET_TYPE_UNKNOWN");
+                    case NetMonitor.NET_TYPE_UNKNOWN:
+                        Log.d(TAG, "--> onValidatedNetwork() : NetMonitor.NET_TYPE_UNKNOWN");
                         break;
-                    case NetMonitor.MY_NET_TYPE_WIFI:
-                        Log.d(TAG, "--> onValidatedNetwork() : NetMonitor.MY_NET_TYPE_WIFI");
+                    case NetMonitor.NET_TYPE_WIFI:
+                        Log.d(TAG, "--> onValidatedNetwork() : NetMonitor.NET_TYPE_WIFI");
                         break;
-                    case NetMonitor.MY_NET_TYPE_MOBILE:
-                        Log.d(TAG, "--> onValidatedNetwork() : NetMonitor.MY_NET_TYPE_MOBILE");
+                    case NetMonitor.NET_TYPE_MOBILE:
+                        Log.d(TAG, "--> onValidatedNetwork() : NetMonitor.NET_TYPE_MOBILE");
                         break;
                 }
                 Message msg = new Message();
@@ -145,16 +145,16 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onLostNetwork(int netType, Network network) {
                 switch( netType ) {
-                    case NetMonitor.MY_NET_TYPE_UNKNOWN:
-                        Log.d(TAG, "--> onLostNetwork() : NetMonitor.MY_NET_TYPE_UNKNOWN");
+                    case NetMonitor.NET_TYPE_UNKNOWN:
+                        Log.d(TAG, "--> onLostNetwork() : NetMonitor.NET_TYPE_UNKNOWN");
                         break;
-                    case NetMonitor.MY_NET_TYPE_WIFI:
-                        Log.d(TAG, "--> onLostNetwork() : NetMonitor.MY_NET_TYPE_WIFI");
+                    case NetMonitor.NET_TYPE_WIFI:
+                        Log.d(TAG, "--> onLostNetwork() : NetMonitor.NET_TYPE_WIFI");
                         String wifiIp = mNetMon.getWifiIPAddress();
                         Log.d(TAG, "WiFi IP = " + wifiIp);
                         break;
-                    case NetMonitor.MY_NET_TYPE_MOBILE:
-                        Log.d(TAG, "--> onLostNetwork() : NetMonitor.MY_NET_TYPE_MOBILE");
+                    case NetMonitor.NET_TYPE_MOBILE:
+                        Log.d(TAG, "--> onLostNetwork() : NetMonitor.NET_TYPE_MOBILE");
                         String mobileIp = mNetMon.getMobileIPAddress();
                         Log.d(TAG, "Mobile IP = " + mobileIp);
                         break;

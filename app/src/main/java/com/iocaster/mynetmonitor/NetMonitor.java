@@ -45,25 +45,25 @@ public class NetMonitor {
     private Context mCtx;
     private Object lockObj = new Object();
 
-    private int mNetType = MY_NET_TYPE_UNKNOWN;
-    public static final int MY_NET_TYPE_UNKNOWN = 0;
-    public static final int MY_NET_TYPE_WIFI = 1;
-    public static final int MY_NET_TYPE_MOBILE = 2;
-    public static final int MY_NET_TYPE_ETHERNET = 3;
-    public static final int MY_NET_TYPE_MAX = 4;
-    //public static enum eNetType {MY_NET_TYPE_UNKNOWN, MY_NET_TYPE_WIFI, MY_NET_TYPE_MOBILE, MY_NET_TYPE_ETHERNET, MY_NET_TYPE_MAX};
-    private static final String[] MY_NET_TYPE_STRS = {
-            "MY_NET_TYPE_UNKNOWN",
-            "MY_NET_TYPE_WIFI",
-            "MY_NET_TYPE_MOBILE",
-            "MY_NET_TYPE_ETHERNET",
+    private int mNetType = NET_TYPE_UNKNOWN;
+    public static final int NET_TYPE_UNKNOWN = 0;
+    public static final int NET_TYPE_WIFI = 1;
+    public static final int NET_TYPE_MOBILE = 2;
+    public static final int NET_TYPE_ETHERNET = 3;
+    public static final int NET_TYPE_MAX = 4;
+    //public static enum eNetType {NET_TYPE_UNKNOWN, NET_TYPE_WIFI, NET_TYPE_MOBILE, NET_TYPE_ETHERNET, NET_TYPE_MAX};
+    private static final String[] NET_TYPE_STRS = {
+            "NET_TYPE_UNKNOWN",
+            "NET_TYPE_WIFI",
+            "NET_TYPE_MOBILE",
+            "NET_TYPE_ETHERNET",
     };
     public String getNetTypeName(int netType) {
-        return MY_NET_TYPE_STRS[netType];
+        return NET_TYPE_STRS[netType];
     }
 
     //private int[] mNetStates = { 0, 0, 0, 0 };   //for UNKNOWN, WIFI, MOBILE, ETHERNET
-    private int[] mNetStates = new int[MY_NET_TYPE_MAX];
+    private int[] mNetStates = new int[NET_TYPE_MAX];
 
     private static final int MY_NET_STATE_UNKNOWN = 0;
     private static final int MY_NET_STATE_AVAILABLE = 1;                //interface up state but internet isn't available state
@@ -84,7 +84,7 @@ public class NetMonitor {
     }
 
     public void init() {
-        mNetStates = new int[MY_NET_TYPE_MAX];
+        mNetStates = new int[NET_TYPE_MAX];
 
         ConnectivityManager cm = (ConnectivityManager) mCtx.getSystemService(Context.CONNECTIVITY_SERVICE);
         cm.registerNetworkCallback(
@@ -123,13 +123,13 @@ public class NetMonitor {
             Log.i(TAG, "    Available network " + network + " " + ni);
             Log.i(TAG, "    Capabilities=" + capabilities);
 
-            int netType = MY_NET_TYPE_UNKNOWN;
+            int netType = NET_TYPE_UNKNOWN;
             if( capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) ) {
-                netType = MY_NET_TYPE_MOBILE;
+                netType = NET_TYPE_MOBILE;
             } else if( capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) ) {
-                netType = MY_NET_TYPE_WIFI;
+                netType = NET_TYPE_WIFI;
             } else if( capabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) ) {
-                netType = MY_NET_TYPE_ETHERNET;
+                netType = NET_TYPE_ETHERNET;
             }
             mNetStates[netType] = MY_NET_STATE_AVAILABLE;
 //            mNetType = netType;
@@ -171,13 +171,13 @@ public class NetMonitor {
             Log.i(TAG, "    New capabilities network " + network + " " + ni);
             Log.i(TAG, "    Capabilities=" + capabilities);
 
-            int netType = MY_NET_TYPE_UNKNOWN;
+            int netType = NET_TYPE_UNKNOWN;
             if( capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) ) {
-                netType = MY_NET_TYPE_MOBILE;
+                netType = NET_TYPE_MOBILE;
             } else if( capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) ) {
-                netType = MY_NET_TYPE_WIFI;
+                netType = NET_TYPE_WIFI;
             } else if( capabilities.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) ) {
-                netType = MY_NET_TYPE_ETHERNET;
+                netType = NET_TYPE_ETHERNET;
             }
 
             if (ni != null && capabilities != null &&
