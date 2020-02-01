@@ -24,6 +24,13 @@
                 app:srcCompat="@drawable/icon_wifi" />
 
             <ImageView
+                android:id="@+id/iconInternet"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                app:srcCompat="@drawable/icon_internet" />
+
+            <ImageView
                 android:id="@+id/iconData"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"

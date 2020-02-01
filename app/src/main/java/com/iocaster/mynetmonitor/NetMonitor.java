@@ -413,6 +413,7 @@ public class NetMonitor {
         return executePing();
     }
 
+    //refer to : https://stackoverflow.com/questions/3905358/how-to-ping-external-ip-from-java-android
     static public boolean executePing() {
         System.out.println("executePing");
         Runtime runtime = Runtime.getRuntime();

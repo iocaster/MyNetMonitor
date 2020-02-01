@@ -75,6 +75,10 @@ public class MainActivity extends AppCompatActivity {
                         if( msg.obj.equals(activeNetwork) ) {
                             //check internet is alive
                             boolean isInetAlive = mNetMon.isInternetAvailable();
+                            if( isInetAlive )
+                                setInternetColorOn();
+                            else
+                                setInternetColorOff();
                             appendLogText("\nInternet Alive("+ isInetAlive + ") on Network " + msg.obj + " ...\n");
                         }
                     } else {
@@ -91,7 +95,7 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-    ImageView ivWifi, ivData;
+    ImageView ivWifi, ivInternet, ivData;
     TextView tvActiveNetworkId;
     TextView tvLog;
 
@@ -101,12 +105,14 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         ivWifi = findViewById(R.id.iconWifi);
+        ivInternet = findViewById(R.id.iconInternet);
         ivData = findViewById(R.id.iconData);
 
         tvActiveNetworkId = findViewById(R.id.textView4ActiveNetworkId);
         tvLog = findViewById(R.id.textView4Log);
 
         setWifiColorOff();
+        setInternetColorOff();
         setDataColorOff();
 
         //enable scrollable with android:scrollbars="vertical"
@@ -195,6 +201,13 @@ public class MainActivity extends AppCompatActivity {
     }
     private void setWifiColorOn() {
         ivWifi.setBackgroundColor(Color.rgb(0, 255, 0));    //green
+    }
+
+    private void setInternetColorOff() {
+        ivInternet.setBackgroundColor(Color.rgb(255, 0, 0));    //red
+    }
+    private void setInternetColorOn() {
+        ivInternet.setBackgroundColor(Color.rgb(0, 255, 0));    //green
     }
 
     private void setDataColorOff() {
