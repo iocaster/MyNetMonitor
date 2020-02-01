@@ -49,7 +49,7 @@ public class MainActivity extends AppCompatActivity {
             switch(msg.what) {
                 case MSG_NOTICE_NEW_NETWORK :
                     Network activeNetwork = mNetMon.getActiveNetwork();
-                    mNetMon.printAllInetAddress(activeNetwork);
+                    //mNetMon.printAllInetAddress(activeNetwork);   //Don't enable this line or App will be blocked if internet isn't available
                     NetworkInfo ni = mNetMon.getNetworkInfo(activeNetwork);
                     int netType = ni.getType();
 
@@ -70,6 +70,12 @@ public class MainActivity extends AppCompatActivity {
                                 String ethIp = mNetMon.getIPAddress("eth0");
                                 tvActiveNetworkId.setText( tvActiveNetworkId.getText() + ", ip = " + ethIp+ " (ethernet)");
                                 break;
+                        }
+
+                        if( msg.obj.equals(activeNetwork) ) {
+                            //check internet is alive
+                            boolean isInetAlive = mNetMon.isInternetAvailable();
+                            appendLogText("\nInternet Alive("+ isInetAlive + ") on Network " + msg.obj + " ...\n");
                         }
                     } else {
                         tvActiveNetworkId.setText("No active network !!!");
@@ -143,6 +149,7 @@ public class MainActivity extends AppCompatActivity {
                 }
                 Message msg = new Message();
                 msg.what = MSG_NOTICE_NEW_NETWORK;
+                msg.obj = network;
                 mHandler.sendMessage( msg );
 
                 ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -227,6 +234,7 @@ public class MainActivity extends AppCompatActivity {
 //                    tvActiveNetworkId.setText( "No active network !!!" );
                 Message msg = new Message();
                 msg.what = MSG_NOTICE_NEW_NETWORK;
+                msg.obj = mNetMon.getActiveNetwork();
                 mHandler.sendMessage( msg );
                 break;
 

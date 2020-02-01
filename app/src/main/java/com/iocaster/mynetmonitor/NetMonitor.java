@@ -122,6 +122,7 @@ public class NetMonitor {
             NetworkCapabilities capabilities = cm.getNetworkCapabilities(network);
             Log.i(TAG, "    Available network " + network + " " + ni);
             Log.i(TAG, "    Capabilities=" + capabilities);
+            //printAllInetAddressSimple(network);   //Don't enable this line or App will be blocked if internet isn't available
 
             int netType = NET_TYPE_UNKNOWN;
             if( capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) ) {
@@ -406,6 +407,37 @@ public class NetMonitor {
                 }
             }
         }.start();
+    }
+
+    static public boolean isInternetAvailable() {
+        return executePing();
+    }
+
+    static public boolean executePing() {
+        System.out.println("executePing");
+        Runtime runtime = Runtime.getRuntime();
+        try
+        {
+            Process  mIpAddrProcess = runtime.exec("/system/bin/ping -c 1 8.8.8.8");
+            int mExitValue = mIpAddrProcess.waitFor();
+            System.out.println(" mExitValue "+mExitValue);
+            if(mExitValue==0){
+                return true;
+            }else{
+                return false;
+            }
+        }
+        catch (InterruptedException ignore)
+        {
+            ignore.printStackTrace();
+            System.out.println(" Exception:"+ignore);
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+            System.out.println(" Exception:"+e);
+        }
+        return false;
     }
 
     /*
