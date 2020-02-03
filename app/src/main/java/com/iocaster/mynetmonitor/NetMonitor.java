@@ -27,6 +27,7 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.nio.ByteOrder;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -446,44 +447,65 @@ public class NetMonitor {
      * https://stackoverflow.com/questions/40670295/how-to-get-ip-address-of-cellular-network-when-device-is-connected-to-wifi-in-an
      * https://stackoverflow.com/questions/6064510/how-to-get-ip-address-of-the-device-from-code/13007325#13007325
      */
-    public String getWifiIPAddress() {
+    public List<String> getWifiIPAddress() {
+        List ipList = new ArrayList();
         WifiManager wifiMgr = (WifiManager) mCtx.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
-        if( wifiMgr == null ) return "";
+        if( wifiMgr == null ) return ipList;
 
         WifiInfo wifiInfo = wifiMgr.getConnectionInfo();
         if( wifiInfo != null ) {
             int ip = wifiInfo.getIpAddress();
             Log.d(TAG, "getWifiIPAddress() : ip = " + ip);
             //return Formatter.formatIpAddress(ip); //deprecated ...
-            return ipAddressToString(ip);
+            //return ipAddressToString(ip);
+            ipList.add(ipAddressToString(ip));
         }
 
-        return "";
+        return ipList;
     }
 
-    public static String getMobileIPAddress() {
+    public static List<String> getMobileIPAddress(String ifname) {
+        List ipList = new ArrayList();
         try {
             List<NetworkInterface> interfaces = Collections.list(NetworkInterface.getNetworkInterfaces());
             for (NetworkInterface intf : interfaces) {
                 List<InetAddress> addrs = Collections.list(intf.getInetAddresses());
                 for (InetAddress addr : addrs) {
                     Log.d(TAG, "getMobileIPAddress() : InetAddr.getHostAddress() = " + addr.getHostAddress() );
-                    if (!addr.isLoopbackAddress()) {
+                    if (!addr.isLoopbackAddress() && intf.getDisplayName().contains( /*"rmnet_data1"*/ ifname )) {
                         //return  addr.getHostAddress();
                         String sAddr = addr.getHostAddress();
-                        boolean isIPv4 = sAddr.indexOf(':') < 0;    //IPv6) fe80::b896:f7ff:feb1:dd27%dummy0
-                        if( isIPv4 ) {
-                            return sAddr;
-                        } else {
-                            int delim = sAddr.indexOf('%'); // drop ip6 zone suffix
-                            return delim<0 ? sAddr.toUpperCase() : sAddr.substring(0, delim).toUpperCase();
-                        }
-
+//                        boolean isIPv4 = sAddr.indexOf(':') < 0;    //IPv6) fe80::b896:f7ff:feb1:dd27% (dummy0, rmnet_data1, v4-rmnet_data1, ... )
+//                        if( isIPv4 ) {
+//                            return sAddr;
+//                        } else {
+//                            int delim = sAddr.indexOf('%'); // drop ip6 zone suffix
+//                            return delim<0 ? sAddr.toUpperCase() : sAddr.substring(0, delim).toUpperCase();
+//                        }
+                        ipList.add( sAddr );
                     }
                 }
             }
         } catch (Exception ex) { } // for now eat exceptions
-        return "";
+        return ipList;
+    }
+
+    public static void printAllInterfaceIP() {
+        try {
+            Enumeration<NetworkInterface> en = NetworkInterface.getNetworkInterfaces();
+            while( en.hasMoreElements() ) {
+                NetworkInterface intf = en.nextElement();
+                Log.i(TAG, "--> printAllInterfaceIP() : NetworkInterface(" + intf.getIndex() + ") : " + intf.getDisplayName());
+                for(Enumeration<InetAddress> enumIpAddr = intf.getInetAddresses(); enumIpAddr.hasMoreElements();) {
+                    InetAddress inetAddress =  enumIpAddr.nextElement();
+                    if( !inetAddress.isLoopbackAddress() /*&& inetAddress instanceof Inet4Address*/) {
+                        Log.i(TAG, "                            InetAddress = " + inetAddress.getHostAddress() + " isVirtual = " + intf.isVirtual() );
+                    }
+                }
+            }
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
     }
 
     /*

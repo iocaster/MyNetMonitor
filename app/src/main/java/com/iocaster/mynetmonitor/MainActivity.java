@@ -21,22 +21,26 @@ import androidx.appcompat.app.AppCompatActivity;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
 
     private NetMonitor mNetMon;
+    private boolean mMobileActive = false;
+    private boolean mWifiActive = false;
+    private boolean mEthernetActive = false;
 
-    public int mPlayerState = 0;
-    public static final int PLAYER_STATE_IDLE = 0;
-    public static final int PLAYER_STATE_INITIALIZED = 1;
-    public static final int PLAYER_STATE_PREPARING = 2;
-    public static final int PLAYER_STATE_PREPARED = 3;
-    public static final int PLAYER_STATE_STARTED = 4;
-    public static final int PLAYER_STATE_STOPPED = 5;
-    public static final int PLAYER_STATE_PAUSED = 6;
-    public static final int PLAYER_STATE_PLAYBACK_COMPLETED = 7;
+//    public int mPlayerState = 0;
+//    public static final int PLAYER_STATE_IDLE = 0;
+//    public static final int PLAYER_STATE_INITIALIZED = 1;
+//    public static final int PLAYER_STATE_PREPARING = 2;
+//    public static final int PLAYER_STATE_PREPARED = 3;
+//    public static final int PLAYER_STATE_STARTED = 4;
+//    public static final int PLAYER_STATE_STOPPED = 5;
+//    public static final int PLAYER_STATE_PAUSED = 6;
+//    public static final int PLAYER_STATE_PLAYBACK_COMPLETED = 7;
 
 
     public static final int MSG_NOTICE_NEW_NETWORK = 1;
@@ -50,6 +54,7 @@ public class MainActivity extends AppCompatActivity {
                 case MSG_NOTICE_NEW_NETWORK :
                     Network activeNetwork = mNetMon.getActiveNetwork();
                     //mNetMon.printAllInetAddress(activeNetwork);   //Don't enable this line or App will be blocked if internet isn't available
+                    mNetMon.printAllInterfaceIP();
                     NetworkInfo ni = mNetMon.getNetworkInfo(activeNetwork);
                     int netType = ni.getType();
 
@@ -57,16 +62,23 @@ public class MainActivity extends AppCompatActivity {
                         tvActiveNetworkId.setText( "network = " + activeNetwork.toString());
                         switch(netType) {
                             case ConnectivityManager.TYPE_WIFI:
-                                String wifiIp = mNetMon.getWifiIPAddress();
+                                mWifiActive = true;
+                                List<String> wifiIps = mNetMon.getWifiIPAddress();
                                 //String wifiIp = mNetMon.getIPAddress("wlan0");
-                                tvActiveNetworkId.setText( tvActiveNetworkId.getText() + ", ip = " + wifiIp + " (wifi)");
+                                for( int i=0; i<wifiIps.size(); i++ ) {
+                                    tvActiveNetworkId.setText(tvActiveNetworkId.getText() + "\n ip = " + wifiIps.get(i) );
+                                }
                                 break;
                             case ConnectivityManager.TYPE_MOBILE:
-                                String mobileIp = mNetMon.getMobileIPAddress();
+                                mMobileActive = true;
+                                List<String> mobileIps = mNetMon.getMobileIPAddress("rmnet_data1");
                                 //String mobileIp = mNetMon.getIPAddress("dummy0");
-                                tvActiveNetworkId.setText( tvActiveNetworkId.getText() + ", ip = " + mobileIp+ " (mobile)");
+                                for( int i=0; i<mobileIps.size(); i++ ) {
+                                    tvActiveNetworkId.setText(tvActiveNetworkId.getText() + "\n ip = " + mobileIps.get(i) );
+                                }
                                 break;
                             case ConnectivityManager.TYPE_ETHERNET:
+                                mEthernetActive = true;
                                 String ethIp = mNetMon.getIPAddress("eth0");
                                 tvActiveNetworkId.setText( tvActiveNetworkId.getText() + ", ip = " + ethIp+ " (ethernet)");
                                 break;
@@ -174,17 +186,27 @@ public class MainActivity extends AppCompatActivity {
                         Log.d(TAG, "--> onLostNetwork() : NetMonitor.NET_TYPE_UNKNOWN");
                         break;
                     case NetMonitor.NET_TYPE_WIFI:
+                        mWifiActive = false;
                         setWifiColorOff();
                         Log.d(TAG, "--> onLostNetwork() : NetMonitor.NET_TYPE_WIFI");
-                        String wifiIp = mNetMon.getWifiIPAddress();
-                        Log.d(TAG, "WiFi IP = " + wifiIp);
+                        List<String> wifiIps = mNetMon.getWifiIPAddress();
+                        for( int i=0; i<wifiIps.size(); i++ ) {
+                            Log.d(TAG, "WiFi IP = " + wifiIps.get(i));
+                        }
                         break;
                     case NetMonitor.NET_TYPE_MOBILE:
+                        mMobileActive = false;
                         setDataColorOff();
                         Log.d(TAG, "--> onLostNetwork() : NetMonitor.NET_TYPE_MOBILE");
-                        String mobileIp = mNetMon.getMobileIPAddress();
-                        Log.d(TAG, "Mobile IP = " + mobileIp);
+                        List<String> mobileIps = mNetMon.getMobileIPAddress("rmnet_data1");
+                        for( int i=0; i<mobileIps.size(); i++ ) {
+                            Log.d(TAG, "Mobile IP = " + mobileIps.get(i));
+                        }
                         break;
+                }
+
+                if( !mMobileActive && !mWifiActive && !mEthernetActive ) {
+                    setInternetColorOff();
                 }
 
                 String str = new String("--> onLostNetwork() : New NetworkID = " + network + " netType = " + mNetMon.getNetTypeName(netType) );
